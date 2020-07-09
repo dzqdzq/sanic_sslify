@@ -90,4 +90,3 @@ class SSLify():
         # Should we add STS header?
         if not self.is_skip(request):
             response.headers.setdefault('Strict-Transport-Security', self.hsts_header)
-        return response
