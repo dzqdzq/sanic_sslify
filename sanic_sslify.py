@@ -2,31 +2,27 @@
 
 from sanic.response import redirect
 
-YEAR_IN_SECS = 31536000
+HSTS_YEARS_IN_SECS = 31536000
 
 
-class SSLify(object):
+class SSLify():
     """Secures your Sanic App."""
 
-    def __init__(self, app, age=YEAR_IN_SECS, subdomains=False, permanent=False, skips=None):
+    def __init__(self, app, hsts_age=HSTS_YEARS_IN_SECS, hsts_include_subdomains=False, permanent_redirection=False, paths_to_skip=[]):
         self.app = app
-        self.hsts_age = age
+        self.hsts_age = hsts_age
 
-        self.app.config.setdefault('SSLIFY_SUBDOMAINS', False)
-        self.app.config.setdefault('SSLIFY_PERMANENT', False)
-        self.app.config.setdefault('SSLIFY_SKIPS', None)
+        self.app.config.setdefault('SSLIFY_HSTS_INCLUDE_SUBDOMAINS', hsts_include_subdomains)
+        self.app.config.setdefault('SSLIFY_PERMANENT_REDIRECTION', permanent_redirection)
+        self.app.config.setdefault('SSLIFY_PATHS_TO_SKIP', paths_to_skip)
 
-        self.hsts_include_subdomains = subdomains or self.app.config['SSLIFY_SUBDOMAINS']
-        self.permanent = permanent or self.app.config['SSLIFY_PERMANENT']
-        self.skip_list = skips or self.app.config['SSLIFY_SKIPS']
+        self.hsts_include_subdomains = self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS']
+        self.permanent_redirection = self.app.config['SSLIFY_PERMANENT_REDIRECTION']
+        self.paths_to_skip = self.app.config['SSLIFY_PATHS_TO_SKIP']
 
-        if app is not None:
-            self.init_app(app)
-
-    def init_app(self, app):
         """Configures the configured Sanic app to enforce SSL."""
-        app.request_middleware.append(self.redirect_to_ssl)
-        app.response_middleware.append(self.set_hsts_header)
+        app.register_middleware(self.redirect_to_ssl, attach_to='request')
+        app.register_middleware(self.set_hsts_header, attach_to='response')
 
     @property
     def hsts_header(self):
@@ -41,10 +37,9 @@ class SSLify(object):
     def isSkip(self,request):
         """Checks the skip list."""
         # Should we skip?
-        if self.skip_list and isinstance(self.skip_list, list):
-            for skip in self.skip_list:
-                if request.path.startswith('/{0}'.format(skip)):
-                    return True
+        for path_to_skip in self.paths_to_skip:
+            if request.path.startswith('/{0}'.format(path_to_skip)):
+                return True
         return False
 
     def redirect_to_ssl(self,request):
@@ -60,7 +55,7 @@ class SSLify(object):
             if request.url.startswith('http://'):
                 url = request.url.replace('http://', 'https://', 1)
                 status = 302
-                if self.permanent:
+                if self.permanent_redirection:
                     status = 301
                 r = redirect(url, status=status)
                 return r
