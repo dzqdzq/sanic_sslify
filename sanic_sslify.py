@@ -19,7 +19,8 @@ class SSLify():
     def __init__(self, app, hsts_age=None, hsts_include_subdomains=None, permanent_redirection=None, paths_to_skip=None):
         if not type(self)._instantiated:
             type(self)._instantiated = True
-        self.app = app
+
+            self.app = app
 
             if hsts_age is not None:
                 self.app.config['SSLIFY_HSTS_AGE'] = hsts_age
