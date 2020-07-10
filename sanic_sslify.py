@@ -22,7 +22,7 @@ class SSLify():
             self.app.config['SSLIFY_HSTS_AGE'] = hsts_age
         elif hsts_age is None \
         and 'SSLIFY_HSTS_AGE' not in self.app.config:
-            self.app.config['SSLIFY_HSTS_AGE'] = 60*60*24*30*12
+            self.app.config['SSLIFY_HSTS_AGE'] = 31536000
         self.hsts_age = self.app.config['SSLIFY_HSTS_AGE']
 
         if hsts_include_subdomains is not None:
