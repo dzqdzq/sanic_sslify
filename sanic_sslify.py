@@ -63,10 +63,7 @@ class SSLify():
 
     def path_is_to_skip(self, request):
         """Checks if path is in the skip paths list."""
-        for path_to_skip in self.paths_to_skip:
-            if request.path.startswith('/{0}'.format(path_to_skip)):
-                return True
-        return False
+        return bool(list(filter(lambda path_to_skip: request.path.startswith('/{0}'.format(path_to_skip)), self.paths_to_skip)))
 
 
     def redirect_to_ssl(self, request):
