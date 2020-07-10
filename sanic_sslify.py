@@ -7,6 +7,7 @@ class SSLify():
     """Secures your Sanic App."""
 
     _instance = None
+    _instantiated = False
 
 
     def __new__(cls, *args, **kwargs):
@@ -16,39 +17,41 @@ class SSLify():
 
 
     def __init__(self, app, hsts_age=None, hsts_include_subdomains=None, permanent_redirection=None, paths_to_skip=None):
+        if not type(self)._instantiated:
+            type(self)._instantiated = True
         self.app = app
 
-        if hsts_age is not None:
-            self.app.config['SSLIFY_HSTS_AGE'] = hsts_age
-        elif hsts_age is None \
-        and 'SSLIFY_HSTS_AGE' not in self.app.config:
-            self.app.config['SSLIFY_HSTS_AGE'] = 31536000
-        self.hsts_age = self.app.config['SSLIFY_HSTS_AGE']
+            if hsts_age is not None:
+                self.app.config['SSLIFY_HSTS_AGE'] = hsts_age
+            elif hsts_age is None \
+            and 'SSLIFY_HSTS_AGE' not in self.app.config:
+                self.app.config['SSLIFY_HSTS_AGE'] = 31536000
+            self.hsts_age = self.app.config['SSLIFY_HSTS_AGE']
 
-        if hsts_include_subdomains is not None:
-            self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS'] = hsts_include_subdomains
-        elif hsts_include_subdomains is None \
-        and 'SSLIFY_HSTS_INCLUDE_SUBDOMAINS' not in self.app.config:
-            self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS'] = False
-        self.hsts_include_subdomains = self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS']
+            if hsts_include_subdomains is not None:
+                self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS'] = hsts_include_subdomains
+            elif hsts_include_subdomains is None \
+            and 'SSLIFY_HSTS_INCLUDE_SUBDOMAINS' not in self.app.config:
+                self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS'] = False
+            self.hsts_include_subdomains = self.app.config['SSLIFY_HSTS_INCLUDE_SUBDOMAINS']
 
-        if permanent_redirection is not None:
-            self.app.config['SSLIFY_PERMANENT_REDIRECTION'] = permanent_redirection
-        elif permanent_redirection is None \
-        and 'SSLIFY_PERMANENT_REDIRECTION' not in self.app.config:
-            self.app.config['SSLIFY_PERMANENT_REDIRECTION'] = False
-        self.permanent_redirection = self.app.config['SSLIFY_PERMANENT_REDIRECTION']
+            if permanent_redirection is not None:
+                self.app.config['SSLIFY_PERMANENT_REDIRECTION'] = permanent_redirection
+            elif permanent_redirection is None \
+            and 'SSLIFY_PERMANENT_REDIRECTION' not in self.app.config:
+                self.app.config['SSLIFY_PERMANENT_REDIRECTION'] = False
+            self.permanent_redirection = self.app.config['SSLIFY_PERMANENT_REDIRECTION']
 
-        if paths_to_skip is not None:
-            self.app.config['SSLIFY_PATHS_TO_SKIP'] = paths_to_skip
-        elif paths_to_skip is None \
-        and 'SSLIFY_PATHS_TO_SKIP' not in self.app.config:
-            self.app.config['SSLIFY_PATHS_TO_SKIP'] = []
-        self.paths_to_skip = self.app.config['SSLIFY_PATHS_TO_SKIP']
+            if paths_to_skip is not None:
+                self.app.config['SSLIFY_PATHS_TO_SKIP'] = paths_to_skip
+            elif paths_to_skip is None \
+            and 'SSLIFY_PATHS_TO_SKIP' not in self.app.config:
+                self.app.config['SSLIFY_PATHS_TO_SKIP'] = []
+            self.paths_to_skip = self.app.config['SSLIFY_PATHS_TO_SKIP']
 
-        """Configures the configured Sanic app to enforce SSL."""
-        app.register_middleware(self.redirect_to_ssl, attach_to='request')
-        app.register_middleware(self.set_hsts_header, attach_to='response')
+            """Configures the configured Sanic app to enforce SSL."""
+            app.register_middleware(self.redirect_to_ssl, attach_to='request')
+            app.register_middleware(self.set_hsts_header, attach_to='response')
 
 
     @property
