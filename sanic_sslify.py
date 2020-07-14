@@ -50,16 +50,14 @@ class SSLify():
                 self.app.config['SSLIFY_PATHS_TO_SKIP'] = []
             self.paths_to_skip = self.app.config['SSLIFY_PATHS_TO_SKIP']
 
-            """Configures the configured Sanic app to enforce SSL."""
-            app.register_middleware(self.redirect_to_ssl, attach_to='request')
-            app.register_middleware(self.set_hsts_header, attach_to='response')
+            self.app.register_middleware(self.redirect_to_ssl, attach_to='request')
+            self.app.register_middleware(self.set_hsts_header, attach_to='response')
 
 
     @property
     def hsts_header(self):
         """Returns the proper HSTS policy."""
         hsts_policy = 'max-age={0}'.format(self.hsts_age)
-
         if self.hsts_include_subdomains:
             hsts_policy += '; includeSubDomains'
         return hsts_policy
@@ -88,7 +86,6 @@ class SSLify():
 
 
     def set_hsts_header(self, request, response):
-        """Adds HSTS header to each response."""
-        # Should we add STS header?
+        """Adds HSTS header to response."""
         if not self.path_is_to_skip(request):
             response.headers.setdefault('Strict-Transport-Security', self.hsts_header)
