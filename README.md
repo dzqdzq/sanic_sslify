@@ -29,35 +29,41 @@ Keep-Alive: timeout=20
 Location: https://www.csdn.net/
 
 ```
-Sanic-SSLify also provides your application with an HSTS policy.
+* Sanic-SSLify also provides your application with an HSTS policy.
 
 By default, HSTS is set for one year (31536000 seconds).
 
 You can change the duration by passing the age parameter:
 ```
-sslify = SSLify(app, age=300)
+sslify = SSLify(app, hsts_age=300)
 ```
-If you'd like to include subdomains in your HSTS policy, set the subdomains parameter:
-```
-sslify = SSLify(app, subdomains=True)
-```
-Or by including SSLIFY_SUBDOMAINS in your app's config.
+Or by including SSLIFY_HSTS_AGE in your app's config.
+(But hsts_age parameter if provided will override SSLIFY_HSTS_AGE).
 
-HTTP 301 Redirects
+* If you'd like to include subdomains in your HSTS policy, set the subdomains parameter:
+```
+sslify = SSLify(app, hsts_include_subdomains=True)
+```
+Or by including SSLIFY_HSTS_INCLUDE_SUBDOMAINS in your app's config.
+(But hsts_include_subdomains parameter if provided will override SSLIFY_HSTS_INCLUDE_SUBDOMAINS).
+
+* HTTP 301 Redirects
 
 By default, the redirect is issued with a HTTP 302 response. You can change that to a HTTP 301 response by passing the permanent parameter:
 ```
-sslify = SSLify(app, permanent=True)
+sslify = SSLify(app, permanent_redirect=True)
 ```
-Or by including SSLIFY_PERMANENT in your app's config.
+Or by including SSLIFY_PERMANENT_REDIRECT in your app's config.
+(But permanent_redirect parameter if provided will override SSLIFY_PERMANENT_REDIRECT).
 
-Exclude Certain Paths from Being Redirected
+* Exclude Certain Paths from Being Redirected
 
 You can exlude a path that starts with given string by including a list called skips:
 ```
-sslify = SSLify(app, skips=['docs', 'auth'])
+sslify = SSLify(app, paths_to_skip=['docs', 'auth'])
 ```
-Or by including SSLIFY_SKIPS in your app's config.
+Or by including SSLIFY_PATHS_TO_SKIP in your app's config.
+(But paths_to_skip parameter if provided will override SSLIFY_PATHS_TO_SKIP).
 
 # Install
 
